@@ -94,5 +94,5 @@ with requests.Session() as s:
 
 filename = "myeps_" + username + "_" + datetime.datetime.now().strftime("%Y.%m.%d_%H.%M.%S") + ".json"
 
-with open(filename, 'w') as output:
+with open("output/" + filename, 'w') as output:
     output.write(json.dumps(all_data,indent=4, separators=(',', ': ')))
