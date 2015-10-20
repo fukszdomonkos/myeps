@@ -18,11 +18,14 @@ class LoginError(Exception):
 def get_myeps_data(username, password):
     base_url = "http://www.myepisodes.com"
 
+    if (username == "") or (password == ""):
+        raise LoginError()
     login_data = {'username': username, 'password': password, 'action': 'Login', 'u': ''}
     with requests.Session() as s:
-        r_login = s.post(base_url + "/login.php", data=login_data)
-        if ("Wrong username/password" in r_login.text) or (
-            "You must fill in a username and a password" in r_login.text):
+        r_login = s.post(base_url + "/login.php?action=login", data=login_data)
+
+        login_error_strings = ["Username not entered", "Password not entered", "Username not found", "Invalid password"]
+        if any(login_error_string in r_login.text for login_error_string in login_error_strings):
             raise LoginError()
 
         r_wasted = s.get(base_url + "/timewasted/")

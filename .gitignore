@@ -51,3 +51,6 @@ myeps_*.json
 
 $ PyInstaller
 *.spec
+__pycache__/
+dist/
+build/
