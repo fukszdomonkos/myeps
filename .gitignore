@@ -48,6 +48,7 @@ crashlytics-build.properties
 fabric.properties
 
 myeps_*.json
+myeps_*.xlsx
 
 $ PyInstaller
 *.spec

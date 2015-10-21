@@ -6,6 +6,7 @@ import threading
 
 from myeps import get_myeps_data, save, LoginError, ParseError
 
+
 class Application(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)

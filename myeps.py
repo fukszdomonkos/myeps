@@ -51,8 +51,8 @@ def get_myeps_data(username, password):
                 row_data["url"] = wasted_row_columns[1].a.get('href')
                 row_data["status"] = wasted_row_columns[2].get_text()
                 row_data["runtime"] = wasted_row_columns[3].get_text()
-                row_data["eps#"] = wasted_row_columns[4].get_text()
-                row_data["mins#"] = wasted_row_columns[5].get_text()
+                row_data["eps"] = wasted_row_columns[4].get_text()
+                row_data["mins"] = wasted_row_columns[5].get_text()
                 row_data["time_wasted"] = wasted_row_columns[6].get_text()
                 wasted_data.append(row_data)
 
@@ -60,7 +60,7 @@ def get_myeps_data(username, password):
 
         all_show_data = []
         for idx, wasted_data_row in enumerate(wasted_data):
-            if (idx < 5) or False:  # Limit the number of shows, only for development. Set False to limit.
+            if (idx < 2) or False:  # Limit the number of shows, only for development. Set False to limit.
                 show_url = base_url + wasted_data_row['url']
                 r_show = s.get(show_url)
                 show_html = r_show.text
@@ -110,15 +110,42 @@ def save(all_data, username, to_json, to_xlsx, to_html):
     if to_html:
         save_to_html(all_data, filename + ".html")
 
-
 def save_to_json(all_data, filename):
     with open(filename, 'w') as output:
         output.write(json.dumps(all_data, indent=4, separators=(',', ': ')))
 
 
 def save_to_xlsx(all_data, filename):
-    with open(filename, 'w') as output:
-        raise Exception()
+    import xlsxwriter
+
+    workbook = xlsxwriter.Workbook(filename)
+    wasted_sheet = workbook.add_worksheet(name="Time Wasted")
+
+    bold = workbook.add_format({'bold': True})
+
+    wasted_sheet.merge_range(0, 0, 0, 5, 'Time Wasted', bold)
+
+    wasted_headers = ("Name", "Status", "Runtime", "Mins", "Eps", "Time Wasted")
+    for wasted_header_col, wasted_header in enumerate(wasted_headers):
+        wasted_sheet.write(1, wasted_header_col, wasted_header)
+
+    row = 2
+    col = 0
+
+    for wasted_row in (all_data["wasted"]["shows"]):
+        wasted_sheet.write(row, col, wasted_row["name"])
+        wasted_sheet.write(row, col + 1, wasted_row["status"])
+        wasted_sheet.write(row, col + 2, wasted_row["runtime"])
+        wasted_sheet.write(row, col + 3, wasted_row["mins"])
+        wasted_sheet.write(row, col + 4, wasted_row["eps"])
+        wasted_sheet.write(row, col + 5, wasted_row["time_wasted"])
+        row += 1
+
+    # Write a total using a formula.
+    wasted_sheet.write(row, 0, 'Total', bold)
+    wasted_sheet.write(row, 1, all_data["wasted"]["total"])
+
+    workbook.close()
 
 
 def save_to_html(all_data, filename):
