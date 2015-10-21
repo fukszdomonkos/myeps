@@ -60,7 +60,7 @@ def get_myeps_data(username, password):
 
         all_show_data = []
         for idx, wasted_data_row in enumerate(wasted_data):
-            if (idx < 2) or False:  # Limit the number of shows, only for development. Set False to limit.
+            if (idx < 2) or True:  # Limit the number of shows, only for development. Set False to limit.
                 show_url = base_url + wasted_data_row['url']
                 r_show = s.get(show_url)
                 show_html = r_show.text
@@ -75,7 +75,11 @@ def get_myeps_data(username, password):
                             row_data = {}
                             try:
                                 air_date_string = show_row_columns[0].get_text()
-                                air_date_date = datetime.datetime.strptime(air_date_string, '%Y-%b-%d')
+                                try:
+                                    air_date_date = datetime.datetime.strptime(air_date_string, '%Y-%b-%d')
+                                    row_data["air_date"] = air_date_date.isoformat()
+                                except ValueError:
+                                    row_data["air_date"] = "Unknown"
                                 row_data["air_date"] = air_date_date.isoformat()
                                 row_data["show_name"] = show_row_columns[1].get_text()
                                 epis = show_row_columns[2].get_text()
