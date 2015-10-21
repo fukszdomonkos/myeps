@@ -55,38 +55,35 @@ def get_myeps_data(username, password):
 
         all_show_data = [];
         for idx, wasted_data_row in enumerate(wasted_data):
-            if (idx < 5) or False:  # Limit the number of shows, only for development
+            if (idx < 5) or True:  # Limit the number of shows, only for development
                 show_url = base_url + wasted_data_row['url']
                 r_show = s.get(show_url);
                 show_html = r_show.text
                 soup = BeautifulSoup(show_html, 'html.parser')
                 show_table = soup.select("table.mylist tr")
 
-                show_headers = show_table[0].select("th")
-                show_header_names = []
-                for header in show_headers:
-                    show_header_names.append(header.get_text())
+                # show_headers = show_table[0].select("th")
+                # show_header_names = []
+                # for header in show_headers:
+                #     show_header_names.append(header.get_text())
 
                 show_data = [];
                 for idx, show_row in enumerate(show_table):
-                    if (idx > 0):
+                    if (idx > 0):  # Exclude main header
                         show_row_columns = show_row.select("td");
-                        if (len(show_row_columns) > 1):
+                        if (len(show_row_columns) > 1):  # Check if it is a real show detail row
                             row_data = {}
-                            for idx_col, show_row_column in enumerate(show_row_columns):
-                                header_name = show_header_names[idx_col]
-                                if (idx_col == 4) or (idx_col == 5):
-                                    if (show_row_column.input.get("checked") == ""):
-                                        row_data[header_name] = True
-                                    else:
-                                        row_data[header_name] = False
-                                else:
-                                    row_data[header_name] = show_row_column.get_text()
+                            row_data["air_date"] = show_row_columns[0].get_text()
+                            row_data["show_name"] = show_row_columns[1].get_text()
+                            row_data["epis#"] = show_row_columns[2].get_text()
+                            row_data["episode_title"] = show_row_columns[3].get_text()
+                            row_data["acquired"] = True if (show_row_columns[4].input.get("checked") == "") else False
+                            row_data["watched"] = True if (show_row_columns[4].input.get("checked") == "") else False
                             show_data.append(row_data)
 
-                show_data_named = {"show": wasted_data_row['name'], "episodes": show_data}
+                show_data_with_name = {"show": wasted_data_row['name'], "episodes": show_data}
 
-                all_show_data.append(show_data_named)
+                all_show_data.append(show_data_with_name)
 
         all_data = {"wasted": wasted_all, "shows": all_show_data}
 
