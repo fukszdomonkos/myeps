@@ -101,8 +101,26 @@ def get_myeps_data(username, password):
     return all_data
 
 
-def save_to_file(all_data, username):
-    filename = "myeps_" + username + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".json"
+def save(all_data, username, to_json, to_xlsx, to_html):
+    filename = "myeps_" + username + "_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    if to_json:
+        save_to_json(all_data, filename + ".json")
+    if to_xlsx:
+        save_to_xlsx(all_data, filename + ".xlsx")
+    if to_html:
+        save_to_html(all_data, filename + ".html")
 
+
+def save_to_json(all_data, filename):
     with open(filename, 'w') as output:
         output.write(json.dumps(all_data, indent=4, separators=(',', ': ')))
+
+
+def save_to_xlsx(all_data, filename):
+    with open(filename, 'w') as output:
+        raise Exception()
+
+
+def save_to_html(all_data, filename):
+    with open(filename, 'w') as output:
+        raise Exception()

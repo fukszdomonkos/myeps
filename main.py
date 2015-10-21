@@ -1,7 +1,7 @@
 __author__ = 'fukszdomonkos'
 
 import argparse
-from myeps import get_myeps_data, save_to_file
+from myeps import get_myeps_data, save
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-u", "--username",
@@ -18,4 +18,4 @@ password = args.password
 
 all_data = get_myeps_data(username, password)
 
-save_to_file(all_data, username)
+save(all_data, username, to_json=True)

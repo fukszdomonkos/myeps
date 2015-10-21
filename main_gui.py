@@ -4,8 +4,7 @@ from tkinter import *
 from tkinter import ttk
 import threading
 
-from myeps import get_myeps_data, save_to_file, LoginError
-
+from myeps import get_myeps_data, save, LoginError, ParseError
 
 class Application(Frame):
     def __init__(self, master):
@@ -30,8 +29,18 @@ class Application(Frame):
         password_entry = ttk.Entry(self.mainframe, width=20, textvariable=self.password, show='*')
         password_entry.grid(column=2, row=2, sticky=W)
 
-        ttk.Button(self.mainframe, text="Save myeps stats", command=self.get_data).grid(column=1, row=3, columnspan=2)
-        ttk.Label(self.mainframe, textvariable=self.status).grid(column=1, row=4, columnspan=2)
+        self.export_to_json = IntVar()
+        Checkbutton(self.mainframe, text="Export to JSON", variable=self.export_to_json).grid(column=1, row=3,
+                                                                                              columnspan=2)
+        self.export_to_xlsx = IntVar()
+        Checkbutton(self.mainframe, text="Export to Excel", variable=self.export_to_xlsx).grid(column=1, row=4,
+                                                                                               columnspan=2)
+        self.export_to_html = IntVar()
+        Checkbutton(self.mainframe, text="Export to HTML", variable=self.export_to_html).grid(column=1, row=5,
+                                                                                              columnspan=2)
+
+        ttk.Button(self.mainframe, text="Save myeps stats", command=self.get_data).grid(column=1, row=6, columnspan=2)
+        ttk.Label(self.mainframe, textvariable=self.status).grid(column=1, row=7, columnspan=2)
 
         for child in self.mainframe.winfo_children(): child.grid_configure(padx=5, pady=5)
 
@@ -42,12 +51,19 @@ class Application(Frame):
         threading.Thread(target=self.get_data_thread).start()
 
     def get_data_thread(self):
-        try:
-            all_data = get_myeps_data(self.username.get(), self.password.get())
-            save_to_file(all_data, self.username.get())
-            self.status.set("Done")
-        except LoginError:
-            self.status.set("Wrong username/password")
+        export_to_json = True if self.export_to_json.get() == 1 else False
+        export_to_xlsx = True if self.export_to_xlsx.get() == 1 else False
+        export_to_html = True if self.export_to_html.get() == 1 else False
+        if export_to_json or export_to_xlsx or export_to_html:
+            try:
+                all_data = get_myeps_data(self.username.get(), self.password.get())
+                save(all_data, self.username.get(), to_json=export_to_json, to_xlsx=export_to_xlsx,
+                     to_html=export_to_html)
+                self.status.set("Done")
+            except LoginError:  # TODO return specific error messages with LoginError
+                self.status.set("Wrong username/password")
+        else:
+            self.status.set("Choose at least one export format")
 
 
 root = Tk()
