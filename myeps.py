@@ -34,32 +34,28 @@ def get_myeps_data(username, password):
         soup = BeautifulSoup(wasted_html, 'html.parser')
         wasted_table = soup.select("table.mylist tr")
 
-        wasted_headers = wasted_table[0].select("th")
-        wasted_header_names = []
-        for idx, header in enumerate(wasted_headers):
-            wasted_header_names.append(header.get_text())
-
         wasted_total = wasted_table[len(wasted_table) - 1].select("th")[6].get_text()
 
         wasted_data = [];
         for idx, wasted_row in enumerate(wasted_table):
-            if (idx > 0) and (idx < len(wasted_table) - 1):
+            if (idx > 0) and (idx < len(wasted_table) - 1):  # Excluding headers
                 wasted_row_columns = wasted_row.select("td");
+
                 row_data = {}
-                for idx_col, wasted_row_column in enumerate(wasted_row_columns):
-                    if (idx_col > 0):
-                        if (idx_col == 1):
-                            url = wasted_row_column.a.get('href')
-                            row_data["url"] = url
-                        header_name = wasted_header_names[idx_col]
-                        row_data[header_name] = wasted_row_column.get_text()
+                row_data["name"] = wasted_row_columns[1].get_text()
+                row_data["url"] = wasted_row_columns[1].a.get('href')
+                row_data["status"] = wasted_row_columns[2].get_text()
+                row_data["runtime"] = wasted_row_columns[3].get_text()
+                row_data["eps#"] = wasted_row_columns[4].get_text()
+                row_data["mins#"] = wasted_row_columns[5].get_text()
+                row_data["time_wasted"] = wasted_row_columns[6].get_text()
                 wasted_data.append(row_data)
 
         wasted_all = {"shows": wasted_data, "total": wasted_total}
 
         all_show_data = [];
         for idx, wasted_data_row in enumerate(wasted_data):
-            if (idx < 5) or True:  # Limit the number of shows, only for development
+            if (idx < 5) or False:  # Limit the number of shows, only for development
                 show_url = base_url + wasted_data_row['url']
                 r_show = s.get(show_url);
                 show_html = r_show.text
@@ -88,7 +84,7 @@ def get_myeps_data(username, password):
                                     row_data[header_name] = show_row_column.get_text()
                             show_data.append(row_data)
 
-                show_data_named = {"show": wasted_data_row['Name'], "episodes": show_data}
+                show_data_named = {"show": wasted_data_row['name'], "episodes": show_data}
 
                 all_show_data.append(show_data_named)
 
